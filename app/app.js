@@ -10,6 +10,17 @@ import {fileURLToPath} from 'url';
 import { lookup } from "dns";
 const _dirname = dirname(fileURLToPath(import.meta.url));
 
+// Auth Step 1 - import modules
+import passport from "passport";
+import passportLocal from "passport-local"
+import flash from 'connect-flash'
+
+// Auth Step 2 - define our auth strategy
+let localStrategy = passportLocal.Strategy;
+
+// Auth Step 3 - import the user model
+import mongoose from "mongoose";
+
 // Import Mongoose Module
 import mongoose from "mongoose";
 
@@ -41,11 +52,28 @@ app.use(express.json());
 app.use(express.urlencoded({extend: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(_dirname, '../public')));
+
+// Auth Step 4 - Setup Express Session
 app.use(session({
     secret: Secret,
     saveUninitialized: false,
     resave: false
 }))
+
+// Auth Step 5 - Step Flash 
+app.use(flash());
+
+// Auth Step 6 - initialize Password and Session
+app.use(passport.initialize());
+app.use(passport.session);
+
+// Auth Step 7 - implement the Auth strategy 
+passport.use(User.createStrategy());
+
+// Auth Step8 - Setup serialization and deserialization
+passport.serializeUser(user.serializeUser());
+passport.deserializeUser(User.deserializeUser);
+
 
 // use Routes 
 app.use('/', indexRouter);
